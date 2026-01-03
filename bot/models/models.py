@@ -21,7 +21,7 @@ class Exchanger(Base):
         back_populates="exchanger", cascade="all, delete-orphan"
     )
 
-    plans: Mapped[List["Plan"]] = relationship(  # новый relationship
+    plans: Mapped[List["Plan"]] = relationship(
         back_populates="exchanger", cascade="all, delete-orphan"
     )
 

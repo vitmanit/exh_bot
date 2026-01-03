@@ -1,12 +1,12 @@
 import asyncio
 import logging
-from bot.config.settings import config
+from config.settings import config
 from aiogram import Bot, Dispatcher
-from bot.database import engine
-from bot.models import Base
-from bot.handlers import handlers
+from database import engine
+from models import Base
+from handlers import handlers
 from aiogram.fsm.storage.memory import MemoryStorage
-from bot.mongo import mongo
+from mongo import mongo
 
 
 logging.basicConfig(level=logging.INFO)
