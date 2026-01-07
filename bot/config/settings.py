@@ -6,7 +6,6 @@ from pydantic import SecretStr
 class Settings(BaseSettings):
     bot_token: SecretStr
     db_url: SecretStr
-    admins: SecretStr
 
     model_config = SettingsConfigDict(
         env_file='../.env',

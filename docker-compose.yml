@@ -1,62 +1,54 @@
-version: '3.8'
-
 services:
   postgres:
-    image: postgres:16
+    image: postgres:17-alpine
+    container_name: exchange_postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      POSTGRES_DB: ${POSTGRES_DB:-exchange}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports:
       - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   mongodb:
-    image: mongo:7
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGO_DB}
-    volumes:
-      - mongo_data:/data/db
+    container_name: exchange_mongodb
+    image: mongo:latest
     ports:
       - "27017:27017"
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-
-  bot:
-    build: .
-    env_file: .env
-    depends_on:
-      postgres: { condition: service_healthy }
-      mongodb: { condition: service_healthy }
-    restart: unless-stopped
     volumes:
-      - .:/app  # для разработки
+      - mongodb_data:/data/db
 
   api:
     build: .
-    command: poetry run uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload  # предполагая api/main.py
-    env_file: .env
-    depends_on:
-      postgres: { condition: service_healthy }
-      mongodb: { condition: service_healthy }
+    container_name: exchange_api
     ports:
       - "8000:8000"
-    restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+      - mongodb
     volumes:
       - .:/app
+    env_file:
+      - .env  # Загружаем переменные из .env
+    command: [ "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+
+  bot:
+    build: .
+    container_name: exchange_bot
+    environment:
+      - PYTHONPATH=/app
+    depends_on:
+      - postgres
+      - mongodb
+    volumes:
+      - .:/app
+    env_file:
+      - .env  # Загружаем переменные из .env
+    command: [ "python", "-m", "bot.main" ]
 
 volumes:
   postgres_data:
-  mongo_data:
+  mongodb_data:

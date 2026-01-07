@@ -2,8 +2,8 @@ import asyncio
 from typing import List, Dict, Optional
 from motor.motor_asyncio import AsyncIOMotorClient
 
-client = AsyncIOMotorClient("mongodb://localhost:27017/")
-db = client["exchange_db"]
+client = AsyncIOMotorClient("mongodb://exchange_mongodb:27017/exchange_db")
+db = client["exchange_db"]  # Измените с exchange_db на exchange (из вашего .env)
 exchangers = db["exchangers"]
 
 

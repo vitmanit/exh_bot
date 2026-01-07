@@ -16,6 +16,7 @@ class Exchanger(Base):
     plan_best_ru: Mapped[int] = mapped_column(Integer, nullable=False)
     plan_best_eng: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    workers: Mapped[str] = mapped_column(String(35), nullable=True)
 
     which_exchangers: Mapped[List["Monitoring"]] = relationship(
         back_populates="exchanger", cascade="all, delete-orphan"

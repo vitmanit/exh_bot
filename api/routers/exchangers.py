@@ -39,27 +39,30 @@ async def create_exchangers(exc_data: ExchangerCreate = Depends(), db: AsyncSess
     return exchanger
 
 
-from sqlalchemy import select
-
-
 @router.patch("/exchangers/{id}", response_model=ExchangerResponse)
 async def update_exchanger(
         id: int,
         update_data: ExchangerUpdate = Depends(),
         db: AsyncSession = Depends(get_session)
 ):
+    # Только изменённые и non-None поля
+    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+
+    if not update_dict:  # Если ничего не передали
+        raise HTTPException(status_code=400, detail="No fields to update")
+
     result = await db.execute(select(Exchanger).where(Exchanger.id == id))
     exchanger = result.scalar_one_or_none()
     if not exchanger:
-        raise HTTPException(404, "Exchanger not found")
+        raise HTTPException(status_code=404, detail="Exchanger not found")
 
-    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
     for key, value in update_dict.items():
         setattr(exchanger, key, value)
 
     await db.commit()
     await db.refresh(exchanger)
     return exchanger
+
 
 @router.delete("/exchangers/{id}", response_model=ExchangerResponse)
 async def delete_exchanger(exchanger_id: int, db: AsyncSession = Depends(get_session)):

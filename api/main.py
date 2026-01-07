@@ -5,7 +5,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from bot.database.db import engine
 from bot.models import Base
-from routers import exchangers
+from api.routers import exchangers
 
 
 @asynccontextmanager

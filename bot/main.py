@@ -4,13 +4,12 @@ from typing import Any
 
 from faststream.rabbit.fastapi import RabbitBroker
 
-from config.settings import config
+from bot.config.settings import config
 from aiogram import Bot, Dispatcher
-from database import engine
-from models import Base
-from handlers import handlers
+from bot.database.db import engine
+from bot.models import Base
+from bot.handlers import handlers
 from aiogram.fsm.storage.memory import MemoryStorage
-from mongo import mongo
 
 broker = RabbitBroker()
 
@@ -22,23 +21,11 @@ async def init_models():
     logging.info("✅ База данных инициализирована")
 
 
-# @broker.subscriber("exchangers")
-# async def exchangers_consumer(msg: dict | Any):
-#     print(f"{msg}")
-#     try:
-#         await bot.send_message(
-#             chat_id=342206495,
-#             text=f"{msg}"
-#         )
-#     except Exception as e:
-#         logging.error(f"Telegram error: {e}")
-
 async def main():
     await init_models()
     bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_routers(handlers.router)
-    logging.info("🐰 Брокер запущен")
     logging.info("🤖 Telegram bot запущен")
     await dp.start_polling(bot)
 
