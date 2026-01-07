@@ -8,7 +8,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.database.db import get_session
 from bot.models.models import Exchanger
 from api.schemas import ExchangerCreate, ExchangerResponse, ExchangerUpdate
-from api.rabbit import router_rabbit
 
 
 router = APIRouter(prefix="/api/v1/exchangers", tags=["Exchangers"])
@@ -16,11 +15,6 @@ router = APIRouter(prefix="/api/v1/exchangers", tags=["Exchangers"])
 
 @router.get("/", response_model=List[ExchangerResponse])
 async def list_exchangers(db: AsyncSession = Depends(get_session)):
-    # await router_rabbit.broker.publish(
-    #     message='Ну проверка',
-    #     queue="exchangers"
-    # )
-    # logging.info("✅ Сообщение отправлено в exch.exchangers")
 
     result = await db.execute(select(Exchanger))
     return result.scalars().all()

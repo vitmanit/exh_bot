@@ -35,20 +35,13 @@ async def init_models():
 
 async def main():
     await init_models()
-    # global bot
     bot = Bot(token=config.bot_token.get_secret_value())
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_routers(handlers.router)
+    logging.info("🐰 Брокер запущен")
+    logging.info("🤖 Telegram bot запущен")
+    await dp.start_polling(bot)
 
-
-    # async with broker:
-    #     logging.info("🐰 Брокер запущен")
-    #     logging.info("🤖 Telegram bot запущен")
-    #
-    #     await asyncio.gather(
-    #         broker.start(),
-    #         dp.start_polling(bot)
-    #     )
 
 if  __name__ == '__main__':
     try:

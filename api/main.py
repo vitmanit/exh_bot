@@ -6,7 +6,6 @@ from starlette.middleware.cors import CORSMiddleware
 from bot.database.db import engine
 from bot.models import Base
 from routers import exchangers
-# from api.rabbit import router_rabbit
 
 
 @asynccontextmanager
@@ -28,7 +27,6 @@ app.add_middleware(
 )
 
 app.include_router(exchangers.router)
-# app.include_router(router_rabbit)
 
 if __name__ == '__main__':
     try:
