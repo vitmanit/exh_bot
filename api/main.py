@@ -1,28 +1,24 @@
 from contextlib import asynccontextmanager
+import uvicorn
 from fastapi import FastAPI
-from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.cors import CORSMiddleware
 
-from bot.database.db import engine, Base
+from bot.database.db import engine
+from bot.models import Base
+from routers import exchangers
+# from api.rabbit import router_rabbit
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: создание таблиц
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("✅ База данных инициализирована")
-
-    yield  # основной код API
-
-    # Shutdown: закрытие engine
+    yield
     await engine.dispose()
-    print("🔌 БД закрыта")
 
 
 app = FastAPI(title="ExchangeFeed API", lifespan=lifespan)
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -31,12 +27,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.include_router(exchangers.router)
-# app.include_router(monitorings.router)
-# app.include_router(Plans.router)
-#
-# if  __name__ == '__main__':
-#     try:
-#         asyncio.run(main())
-#     except KeyboardInterrupt:
-#         print('Бот выключен')
+app.include_router(exchangers.router)
+# app.include_router(router_rabbit)
+
+if __name__ == '__main__':
+    try:
+        uvicorn.run(
+            "main:app",
+            host="127.0.0.1",
+            port=8000,
+            reload=True,
+            log_level="info"
+        )
+    except KeyboardInterrupt:
+        print('🔌 API остановлен пользователем')

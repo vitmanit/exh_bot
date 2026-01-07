@@ -171,3 +171,8 @@ async def process_url(message: Message, state: FSMContext):
     if exc:
         await show_exchange_card(message, exc.id)
     await state.clear()
+
+
+@router.message(F.text == 'Айди')
+async def show_exchange_card(message: Message):
+    await message.answer(f'Ваш чат айди: {message.chat.id}')

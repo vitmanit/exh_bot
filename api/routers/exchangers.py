@@ -1,15 +1,83 @@
-from fastapi import APIRouter, Depends
+import logging
+from typing import List
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from bot.database.crud.exchanger import get_exchangers, create_exchanger
-from bot.database.db import AsyncSessionLocal
 
-router = APIRouter(prefix="/exchangers", tags=["exchangers"])
+from bot.database.db import get_session
+from bot.models.models import Exchanger
+from api.schemas import ExchangerCreate, ExchangerResponse, ExchangerUpdate
+from api.rabbit import router_rabbit
 
-@router.get("/")
-async def list_exchangers(session: AsyncSession = Depends(AsyncSessionLocal)):
-    return await get_exchangers(session)
 
-@router.post("/")
-async def add_exchanger(exchanger_data: ExchangerCreate, session: AsyncSession = Depends(AsyncSessionLocal)):
-    exchanger = Exchanger(**exchanger_data.dict())
-    return await create_exchanger(exchanger, session)
+router = APIRouter(prefix="/api/v1/exchangers", tags=["Exchangers"])
+
+
+@router.get("/", response_model=List[ExchangerResponse])
+async def list_exchangers(db: AsyncSession = Depends(get_session)):
+    # await router_rabbit.broker.publish(
+    #     message='Ну проверка',
+    #     queue="exchangers"
+    # )
+    # logging.info("✅ Сообщение отправлено в exch.exchangers")
+
+    result = await db.execute(select(Exchanger))
+    return result.scalars().all()
+
+
+@router.get("/{exchanger_name}", response_model=ExchangerResponse)
+async def get_exchanger(exc_name: str, db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(Exchanger).where(Exchanger.name == exc_name))
+    exchangers = result.scalar_one_or_none()
+    if exchangers is None:
+        raise HTTPException(status_code=404, detail="Exchanger not found")
+    return exchangers
+
+
+
+@router.post("/create_exchangers", response_model=ExchangerCreate, status_code=201)
+async def create_exchangers(exc_data: ExchangerCreate = Depends(), db: AsyncSession = Depends(get_session)):
+    exchanger = Exchanger(**exc_data.model_dump())
+    db.add(exchanger)
+    await db.commit()
+    await db.refresh(exchanger)
+    return exchanger
+
+
+from sqlalchemy import select
+
+
+@router.patch("/exchangers/{id}", response_model=ExchangerResponse)
+async def update_exchanger(
+        id: int,
+        update_data: ExchangerUpdate = Depends(),
+        db: AsyncSession = Depends(get_session)
+):
+    result = await db.execute(select(Exchanger).where(Exchanger.id == id))
+    exchanger = result.scalar_one_or_none()
+    if not exchanger:
+        raise HTTPException(404, "Exchanger not found")
+
+    update_dict = update_data.model_dump(exclude_unset=True, exclude_none=True)
+    for key, value in update_dict.items():
+        setattr(exchanger, key, value)
+
+    await db.commit()
+    await db.refresh(exchanger)
+    return exchanger
+
+@router.delete("/exchangers/{id}", response_model=ExchangerResponse)
+async def delete_exchanger(exchanger_id: int, db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(Exchanger).where(Exchanger.id == exchanger_id))
+    exchanger = result.scalar_one_or_none()
+    if not exchanger:
+        raise HTTPException(404, "Exchanger not found")
+    deleted_exchanger = exchanger
+    await db.delete(exchanger)
+    await db.commit()
+
+    return deleted_exchanger
+
+
+

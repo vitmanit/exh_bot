@@ -38,7 +38,7 @@ class Monitoring(Base):
     exchanger_id: Mapped[int] = mapped_column(Integer, ForeignKey("exchangers.id"))
     exchanger: Mapped["Exchanger"] = relationship(back_populates="which_exchangers")
 
-    plans: Mapped[List["Plan"]] = relationship(  # новый relationship
+    plans: Mapped[List["Plan"]] = relationship(
         back_populates="monitoring", cascade="all, delete-orphan"
     )
 
