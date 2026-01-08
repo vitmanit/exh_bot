@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     bot_token: SecretStr
     db_url: SecretStr
     MONGO_ADMIN_TOKEN: SecretStr
+    SECRET_KEY: SecretStr = SecretStr("your-super-secret-key-change-in-prod")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
     model_config = SettingsConfigDict(
         env_file='../.env',

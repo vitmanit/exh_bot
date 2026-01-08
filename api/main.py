@@ -3,11 +3,10 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from bot.database.db import engine
-from bot.models import Base
-from api.routers import exchangers, monitorings, plans
-from api.routers import mongodb_exchangers
-
+from app.bot.database.db import engine
+from app.models import Base
+from app.api.routers import monitorings, plans
+from app.api.routers import mongodb_exchangers, exchangers
 
 
 @asynccontextmanager

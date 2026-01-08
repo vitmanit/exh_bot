@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.database.db import get_session
-from bot.models.models import Plan
-from api.schemas import PlanCreate, PlanUpdate, PlanResponse
+from app.bot.database.db import get_session
+from app.models.models import Plan
+from app.api.schemas import PlanCreate, PlanUpdate, PlanResponse
 
 router = APIRouter(prefix="/api/v1", tags=["Plan"])
 

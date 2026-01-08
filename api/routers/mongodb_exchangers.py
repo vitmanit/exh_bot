@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import List, Dict, Optional
-from bot.mongo.mongo import (  # ← Твой файл!
+from typing import List, Dict
+from app.bot import (  # ← Твой файл!
     add_site, get_sites, remove_site, get_all_exchangers, exchangers
 )
-from api.core.auth import get_current_admin
+from app.api.core.auth import get_current_admin
 
 router = APIRouter(
     prefix="/admin/mongodb",

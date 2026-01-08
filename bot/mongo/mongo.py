@@ -9,9 +9,11 @@ exchangers = db["exchangers"]
 
 # Добавить/обновить сайт (ключ:значение)
 async def add_site(exchange_name: str, site_name: str, url: str) -> None:
+    clean_site_name = site_name.split('.')[0].lower()
+
     await exchangers.update_one(
         {"name": exchange_name},
-        {"$set": {f"sites.{site_name}": url}},
+        {"$set": {f"sites.{clean_site_name}": url}},
         upsert=True,
     )
 

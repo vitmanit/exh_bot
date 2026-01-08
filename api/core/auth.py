@@ -1,5 +1,5 @@
-from fastapi import Request, HTTPException, Depends
-from bot.config.settings import config
+from fastapi import Request, HTTPException
+from app.bot.config.settings import config
 
 async def get_current_admin(request: Request):
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
