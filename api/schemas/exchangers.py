@@ -32,6 +32,6 @@ class ExchangerUpdate(ExchangerCreate):
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra='ignore'  # Игнорирует лишние поля в JSON
+        extra='ignore'
     )
 

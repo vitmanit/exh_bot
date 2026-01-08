@@ -6,6 +6,7 @@ from pydantic import SecretStr
 class Settings(BaseSettings):
     bot_token: SecretStr
     db_url: SecretStr
+    MONGO_ADMIN_TOKEN: SecretStr
 
     model_config = SettingsConfigDict(
         env_file='../.env',

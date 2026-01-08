@@ -5,7 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from bot.database.db import engine
 from bot.models import Base
-from api.routers import exchangers
+from api.routers import exchangers, monitorings, plans
+from api.routers import mongodb_exchangers
+
 
 
 @asynccontextmanager
@@ -18,6 +20,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ExchangeFeed API", lifespan=lifespan)
 
+
+app.include_router(exchangers.router)
+app.include_router(monitorings.router)
+app.include_router(plans.router)
+app.include_router(mongodb_exchangers.router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -26,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(exchangers.router)
+
 
 if __name__ == '__main__':
     try:

@@ -4,6 +4,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InlineKeyboardButton, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.orm import selectinload
+
+from bot.models import Monitoring
 from bot.mongo.mongo import *
 from bot.keyboards import main_menu, show_exchange_card, get_exchangers_list_kb
 from sqlalchemy import select
@@ -20,14 +22,10 @@ async def cmd_start(message: Message):
     await message.answer("Привет! Какие данные хочешь получить?", reply_markup=await main_menu())
 
 
-@router.message(F.text == 'Список обменников')
+@router.message(F.text == 'План обменников')
 async def exchange_list(message: Message):
-    # if not root_users(message.from_user.id):
-    #     await message.answer(text='Доступно только Администрации')
-    #     return
-
     async with AsyncSessionLocal() as session:
-        stmt = select(Exchanger).options(selectinload(Exchanger.which_exchangers))
+        stmt = select(Exchanger).where(Exchanger.in_work == True).options(selectinload(Exchanger.which_exchangers))
         result = await session.execute(stmt)
         exchangers = result.scalars().all()
 
@@ -56,25 +54,14 @@ async def exchange_list(message: Message):
 
 @router.message(F.text == 'Список мониторингов')
 async def monitoring_list(message: Message):
-    # if not root_users(message.from_user.id):
-    #     await message.answer(text='Доступно только Администрации')
-    #     return
-
     async with AsyncSessionLocal() as session:
-        stmt = select(Exchanger).options(selectinload(Exchanger.which_exchangers))
+        stmt = select(Monitoring)
         result = await session.execute(stmt)
-        exchangers = result.scalars().all()
+        monitoring_list = result.scalars().all()
 
-        text = "💱 <b>Обменники и мониторинги</b>:\n\n"
-        for exc in exchangers:
-            text += f"<b>{exc.name}</b>\n"
-            if exc.which_exchangers:
-                for mon in exc.which_exchangers:
-                    status = "✅" if mon.can_do else "❌"
-                    text += f"  • <code>{mon.link}</code> {status}\n"
-            else:
-                text += "  Мониторинги: нет\n"
-            text += "\n"
+        text = "💱 <b>Мониторинги</b>:\n\n"
+        for mon in monitoring_list:
+            text += f"<b>{mon.name}</b>\n"
 
         await message.answer(text, parse_mode="HTML")
 

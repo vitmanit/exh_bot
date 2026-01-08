@@ -11,7 +11,7 @@ async def main_menu():
     kb = ReplyKeyboardMarkup(
         keyboard=[
             [
-                KeyboardButton(text="Список обменников"),
+                KeyboardButton(text="План обменников"),
                 KeyboardButton(text="Список мониторингов"),
             ],
             [

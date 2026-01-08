@@ -15,7 +15,6 @@ router = APIRouter(prefix="/api/v1/exchangers", tags=["Exchangers"])
 
 @router.get("/", response_model=List[ExchangerResponse])
 async def list_exchangers(db: AsyncSession = Depends(get_session)):
-
     result = await db.execute(select(Exchanger))
     return result.scalars().all()
 
@@ -30,7 +29,7 @@ async def get_exchanger(exc_name: str, db: AsyncSession = Depends(get_session)):
 
 
 
-@router.post("/create_exchangers", response_model=ExchangerCreate, status_code=201)
+@router.post("/create_exchanger", response_model=ExchangerCreate, status_code=201)
 async def create_exchangers(exc_data: ExchangerCreate = Depends(), db: AsyncSession = Depends(get_session)):
     exchanger = Exchanger(**exc_data.model_dump())
     db.add(exchanger)
@@ -39,7 +38,7 @@ async def create_exchangers(exc_data: ExchangerCreate = Depends(), db: AsyncSess
     return exchanger
 
 
-@router.patch("/exchangers/{id}", response_model=ExchangerResponse)
+@router.patch("/exchanger/{id}", response_model=ExchangerResponse)
 async def update_exchanger(
         id: int,
         update_data: ExchangerUpdate = Depends(),
