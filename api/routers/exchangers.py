@@ -1,12 +1,13 @@
+import logging
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.bot.database.db import get_session
-from app.models.models import Exchanger
-from app.api.schemas import ExchangerCreate, ExchangerResponse, ExchangerUpdate
+from bot.database.db import get_session
+from bot.models.models import Exchanger
+from api.schemas import ExchangerCreate, ExchangerResponse, ExchangerUpdate
 
 
 router = APIRouter(prefix="/api/v1/exchangers", tags=["Exchangers"])

@@ -1,12 +1,14 @@
 from contextlib import asynccontextmanager
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, Depends
 from starlette.middleware.cors import CORSMiddleware
 
-from app.bot.database.db import engine
-from app.models import Base
-from app.api.routers import monitorings, plans
-from app.api.routers import mongodb_exchangers, exchangers
+from api.core.auth import get_current_admin
+from bot.database.db import engine
+from bot.models import Base
+from api.routers import exchangers, monitorings, plans, auth
+from api.routers import mongodb_exchangers
+
 
 
 @asynccontextmanager
@@ -19,11 +21,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="ExchangeFeed API", lifespan=lifespan)
 
-
-app.include_router(exchangers.router)
-app.include_router(monitorings.router)
-app.include_router(plans.router)
-app.include_router(mongodb_exchangers.router)
+admin_router = APIRouter(dependencies=[Depends(get_current_admin)])
+admin_router.include_router(exchangers.router)
+admin_router.include_router(monitorings.router)
+admin_router.include_router(plans.router)
+admin_router.include_router(mongodb_exchangers.router)
+app.include_router(admin_router, prefix="/admin")
+app.include_router(auth.router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -29,6 +29,7 @@ class ExchangerUpdate(ExchangerCreate):
     plan_best_ru: Optional[int] = None
     plan_best_eng: Optional[int] = None
     description: Optional[str] = None
+    workers: Optional[str] = None
 
     model_config = ConfigDict(
         from_attributes=True,

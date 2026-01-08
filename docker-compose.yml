@@ -20,7 +20,7 @@ services:
       - mongodb_data:/data/db
 
   api:
-    build: ..
+    build: .
     container_name: exchange_api
     ports:
       - "8000:8000"
@@ -33,10 +33,10 @@ services:
       - .:/app
     env_file:
       - .env  # Загружаем переменные из .env
-    command: [ "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
+    command: [ "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
   bot:
-    build: ..
+    build: .
     container_name: exchange_bot
     environment:
       - PYTHONPATH=/app

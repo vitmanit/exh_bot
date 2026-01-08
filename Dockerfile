@@ -19,7 +19,7 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-root --no-interaction --no-ansi
 
 # Копируем ВЕСЬ проект
-COPY .. .
+COPY . .
 
 # Добавляем корень проекта в PYTHONPATH
 ENV PYTHONPATH=/app:$PYTHONPATH

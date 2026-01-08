@@ -1,10 +1,12 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.bot.database.db import get_session
-from app.models.models import Monitoring
-from app.api.schemas.monitorings import *
+from bot.database.db import get_session
+from bot.models.models import Monitoring
+from api.schemas.monitorings import *
 
 
 router = APIRouter(prefix="/api/v1/monitoring", tags=["Monitoring"])
